@@ -19,16 +19,34 @@ RCT_EXPORT_METHOD(switchState:(BOOL *)newState)
         AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         if ([device hasTorch]){
             [device lockForConfiguration:nil];
-
+            
             if (newState) {
                 [device setTorchMode:AVCaptureTorchModeOn];
             } else {
                 [device setTorchMode:AVCaptureTorchModeOff];
             }
-
+            
             [device unlockForConfiguration];
         }
     }
 }
 
+RCT_EXPORT_METHOD(getStatus:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    if ([AVCaptureDevice class]) {
+        AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+        if ([device hasTorch]){
+            BOOL isOn = device.torchMode == AVCaptureTorchModeOn;
+            resolve(isOn ? @"true" : @"false");
+        } else {
+            NSError *error = [[NSError alloc] initWithDomain:@"torch" code:0 userInfo:nil];
+            reject(@"no_torch_available", @"This device has no torch", error);
+        }
+    } else {
+        NSError *error = [[NSError alloc] initWithDomain:@"torch" code:0 userInfo:nil];
+        reject(@"no_torch_available", @"This device has no torch", error);
+    }
+}
+
 @end
+

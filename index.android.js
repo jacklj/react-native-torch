@@ -58,6 +58,20 @@ async function requestCameraPermission(
   }
 }
 
+async function getStatus(): Promise<boolean> {
+  let done;
+  let failure;
+  
+  const result = new Promise((resolve, reject) => {
+    done = resolve;
+    failure = reject;
+  });
+
+  Torch.getTorchStatus(done, failure);
+  
+  return result;
+}
+
 async function switchState(newState: boolean): Promise<boolean> {
   let done;
   let failure;
@@ -73,8 +87,9 @@ async function switchState(newState: boolean): Promise<boolean> {
 
 const TorchWithPermissionCheck = {
   ...Torch,
-  switchState,
-  requestCameraPermission
+  getStatus,
+  requestCameraPermission,
+  switchState
 };
 
 export default TorchWithPermissionCheck;
